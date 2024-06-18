@@ -2,8 +2,8 @@ name: Create Release and Add Script
 
 on:
   push:
-    branches:
-      - release  # Triggered when pushing on release
+    tags:
+      - 'v*.*.*'  # Triggered when pushing tags like v1.0.0
 
 jobs:
   create-release:

@@ -2,3 +2,4 @@
 
 echo 'red'
 echo 'blue'
+echo 'green'

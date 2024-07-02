@@ -27,6 +27,10 @@ jobs:
         ./version.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Read version
+      id: read_version
+      run: echo "VERSION=$(cat version.txt | tr -d '\n' | tr -d ' ')" >> $GITHUB_ENV
 
     - name: Get modified files
       id: get_modified_files
@@ -37,13 +41,11 @@ jobs:
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: "v$(cat version.txt)"
-        release_name: "v$(cat version.txt)"
+        tag_name: "v${{ env.VERSION }}"
+        release_name: "v${{ env.VERSION }}"
         body: |
-          Automatic release for version $(cat version.txt)
+          Automatic release for version v${{ env.VERSION }}
 
           ## Modified Files:
           ${{ steps.get_modified_files.outputs.MODIFIED_FILES }}

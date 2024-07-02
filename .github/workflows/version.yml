@@ -66,10 +66,16 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Setup GitHub CLI
-      uses: actions/setup-gh@v2
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        node-version: '14'
+
+    - name: Install GitHub CLI
+      run: npm install -g @githubnext/github-cli
+
+    - name: Authenticate GitHub CLI
+      run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
 
     - name: Upload Web.zip as asset
       if: success()

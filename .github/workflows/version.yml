@@ -1,5 +1,3 @@
-name: Local versionning
-
 on:
   push:
     branches:
@@ -24,5 +22,16 @@ jobs:
       run: |
         chmod +x version.sh
         ./version.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create new branch with version
+      run: |
+        # Extract the new version from version.txt
+        NEW_VERSION=$(cat version.txt)
+        # Create a new branch with the new version
+        git checkout -b "release-v$NEW_VERSION"
+        # Push the new branch to the repository
+        git push origin "release-v$NEW_VERSION"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

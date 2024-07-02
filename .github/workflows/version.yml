@@ -38,6 +38,18 @@ jobs:
         MODIFIED_FILES=$(git diff --name-only HEAD~1 | tr '\n' ' ')
         echo "MODIFIED_FILES=$MODIFIED_FILES" >> $GITHUB_ENV
 
+    - name: Copy modified files to Web folder
+      run: |
+        mkdir -p Web
+        IFS=' ' read -r -a FILES <<< "${{ env.MODIFIED_FILES }}"
+        for FILE in "${FILES[@]}"; do
+          cp --parents "$FILE" Web
+        done
+
+    - name: Compress Web folder
+      run: |
+        zip -r Web.zip Web
+
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
@@ -53,13 +65,21 @@ jobs:
           ${{ env.MODIFIED_FILES }}
         draft: false
         prerelease: false
-    - name: Upload modified files as assets
+
+    - name: Install GitHub CLI
+      run: sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0 && \
+           sudo apt-add-repository https://cli.github.com/packages && \
+           sudo apt update && \
+           sudo apt install gh -y
+
+    - name: Authenticate GitHub CLI
+      run: gh auth login --with-token
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Web.zip as asset
       if: success()
-      run: |
-        IFS=' ' read -r -a FILES <<< "${{ env.MODIFIED_FILES }}"
-        for FILE in "${FILES[@]}"; do
-          gh release upload "v${{ env.VERSION }}" "$FILE" --repo ${{ github.repository }}
-        done
+      run: gh release upload "v${{ env.VERSION }}" "Web.zip" --repo ${{ github.repository }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPOSITORY: ${{ github.repository }}

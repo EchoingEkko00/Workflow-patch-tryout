@@ -1,3 +1,5 @@
+name: Automatic Release
+
 on:
   push:
     branches:
@@ -19,8 +21,21 @@ jobs:
         git config --global user.email "github-actions@github.com"
 
     - name: Bump version
+      id: bump_version
       run: |
         chmod +x version.sh
         ./version.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "v$(cat version.txt)"
+        release_name: "v$(cat version.txt)"
+        body: "Automatic release for version $(cat version.txt)"
+        draft: false
+        prerelease: false

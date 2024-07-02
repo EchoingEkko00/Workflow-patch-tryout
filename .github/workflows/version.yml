@@ -10,10 +10,6 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    
-    container:
-      image: docker://ghcr.io/github/super-linter:latest
-      options: --entrypoint ""
 
     steps:
     - name: Checkout code

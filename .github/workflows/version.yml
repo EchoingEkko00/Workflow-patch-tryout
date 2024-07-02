@@ -27,15 +27,15 @@ jobs:
         ./version.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Read version
       id: read_version
-      run: echo "VERSION=$(cat version.txt | tr -d '\n' | tr -d ' ')" >> $GITHUB_ENV
+      run: echo "VERSION=$(cat version.txt | tr -d '\n')" >> $GITHUB_ENV
 
     - name: Get modified files
       id: get_modified_files
       run: |
-        MODIFIED_FILES=$(git diff --name-only HEAD~1)
+        MODIFIED_FILES=$(git diff --name-only HEAD~1 | tr '\n' ' ')
         echo "MODIFIED_FILES=$MODIFIED_FILES" >> $GITHUB_ENV
 
     - name: Create GitHub Release
@@ -48,6 +48,6 @@ jobs:
           Automatic release for version v${{ env.VERSION }}
 
           ## Modified Files:
-          ${{ steps.get_modified_files.outputs.MODIFIED_FILES }}
+          ${{ env.MODIFIED_FILES }}
         draft: false
         prerelease: false

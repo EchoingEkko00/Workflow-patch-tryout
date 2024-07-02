@@ -37,4 +37,5 @@ jobs:
         body: "Release for tag v$(cat version.txt)"
         draft: false
         prerelease: false
-        token: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

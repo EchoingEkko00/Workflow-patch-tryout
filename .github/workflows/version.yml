@@ -27,14 +27,18 @@ jobs:
         ./version.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
+    
+    - name: Read version
+      id: read_version
+      run: echo "VERSION=$(cat version.txt | tr -d '\n' | tr -d ' ')" >> $GITHUB_ENV
+
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       with:
-        tag_name: "v$(cat version.txt)"
-        release_name: "v$(cat version.txt)"
-        body: "Release for tag v$(cat version.txt)"
+        tag_name: "v${{ env.VERSION }}"
+        release_name: "v${{ env.VERSION }}"
+        body: "Release for tag v${{ env.VERSION }}"
         draft: false
         prerelease: false
       env:

@@ -27,15 +27,14 @@ jobs:
         ./version.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: "v$(cat version.txt)"
         release_name: "v$(cat version.txt)"
-        body: "Automatic release for version $(cat version.txt)"
+        body: "Release for tag v$(cat version.txt)"
         draft: false
         prerelease: false
+        token: ${{ secrets.GITHUB_TOKEN }}

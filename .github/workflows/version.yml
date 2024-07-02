@@ -10,6 +10,10 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    
+    container:
+      image: docker://ghcr.io/github/super-linter:latest
+      options: --entrypoint ""
 
     steps:
     - name: Checkout code
@@ -66,19 +70,10 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Install GitHub CLI
-      run: |
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0 && \
-        sudo apt-add-repository https://cli.github.com/packages && \
-        sudo apt update && \
-        sudo apt install gh -y
-
-    - name: Authenticate GitHub CLI
-      run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
-
     - name: Upload Web.zip as asset
       if: success()
-      run: gh release upload "v${{ env.VERSION }}" "Web.zip" --repo ${{ github.repository }}
+      run: |
+        gh release upload "v${{ env.VERSION }}" "Web.zip" --repo ${{ github.repository }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPOSITORY: ${{ github.repository }}

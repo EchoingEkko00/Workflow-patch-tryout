@@ -1,0 +1,101 @@
+name: Automatic Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 2  # Fetch all history to get all tags
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+
+    - name: Get the latest tag
+      id: get_latest_tag
+      run: |
+        git tag -l | xargs -n 1 git tag -d
+        git fetch --tags
+        echo "LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
+
+    - name: Determine new version
+      id: determine_version
+      run: |
+        LATEST_TAG=${{ env.LATEST_TAG }}
+        if [[ "$LATEST_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          VERSION=${LATEST_TAG:1}
+          IFS='.' read -r -a PARTS <<< "$VERSION"
+          PARTS[2]=$((PARTS[2]+1))
+          NEW_VERSION="v${PARTS[0]}.${PARTS[1]}.${PARTS[2]}"
+        else
+          NEW_VERSION="v1.0.0"
+        fi
+        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+    - name: Get modified files
+      id: get_modified_files
+      run: |
+        MODIFIED_FILES=$(git diff --name-only HEAD~1 | tr '\n' ' ')
+        echo "MODIFIED_FILES=$MODIFIED_FILES" >> $GITHUB_ENV
+
+    - name: Get deleted files
+      id: get_deleted_files
+      run: |
+        DELETED_FILES=$(git diff --name-only --diff-filter=D HEAD~1 | tr '\n' ' ')
+        echo "DELETED_FILES=$DELETED_FILES" >> $GITHUB_ENV
+
+    - name: Copy modified files to Web folder
+      run: |
+        mkdir -p Web
+        IFS=' ' read -r -a FILES <<< "${{ env.MODIFIED_FILES }}"
+        for FILE in "${FILES[@]}"; do
+          if [ -e "$FILE" ]; then
+            if [ -d "$FILE" ]; then
+              cp -r --parents "$FILE" Web
+            else
+              cp --parents "$FILE" Web
+            fi
+          fi
+        done
+
+    - name: Compress Web folder
+      run: |
+        zip -r Web.zip Web
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "${{ env.NEW_VERSION }}"
+        release_name: "${{ env.NEW_VERSION }}"
+        body: |
+          Automatic release for version ${{ env.NEW_VERSION }}
+
+          ## Modified Files:
+          ${{ env.MODIFIED_FILES }}
+
+          ## Deleted Files:
+          ${{ env.DELETED_FILES }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Web.zip as asset
+      if: success()
+      run: |
+        gh release upload "${{ env.NEW_VERSION }}" "Web.zip" --repo ${{ github.repository }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPOSITORY: ${{ github.repository }}

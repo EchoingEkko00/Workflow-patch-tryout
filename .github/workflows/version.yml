@@ -15,25 +15,30 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        fetch-depth: 2  # Fetch the last 2 commits to ensure HEAD~1 is available
+        fetch-depth: 2  # Fetch all history to get all tags
 
     - name: Set up Git
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
-        git pull origin main
 
-    - name: Bump version
-      id: bump_version
+    - name: Get the latest tag
+      id: get_latest_tag
+      run: echo "LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
+
+    - name: Determine new version
+      id: determine_version
       run: |
-        chmod +x version.sh
-        ./version.sh
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Read version
-      id: read_version
-      run: echo "VERSION=$(cat version.txt | tr -d '\n')" >> $GITHUB_ENV
+        LATEST_TAG=${{ env.LATEST_TAG }}
+        if [[ "$LATEST_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          VERSION=${LATEST_TAG:1}
+          IFS='.' read -r -a PARTS <<< "$VERSION"
+          PARTS[2]=$((PARTS[2]+1))
+          NEW_VERSION="v${PARTS[0]}.${PARTS[1]}.${PARTS[2]}"
+        else
+          NEW_VERSION="v1.0.0"
+        fi
+        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
     - name: Get modified files
       id: get_modified_files
@@ -46,13 +51,7 @@ jobs:
         mkdir -p Web
         IFS=' ' read -r -a FILES <<< "${{ env.MODIFIED_FILES }}"
         for FILE in "${FILES[@]}"; do
-          if [ -e "$FILE" ]; then
-            if [ -d "$FILE" ]; then
-              cp -r --parents "$FILE" Web
-            else
-              cp --parents "$FILE" Web
-            fi
-          fi
+          cp --parents "$FILE" Web
         done
 
     - name: Compress Web folder
@@ -65,10 +64,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: "v${{ env.VERSION }}"
-        release_name: "v${{ env.VERSION }}"
+        tag_name: "${{ env.NEW_VERSION }}"
+        release_name: "${{ env.NEW_VERSION }}"
         body: |
-          Automatic release for version v${{ env.VERSION }}
+          Automatic release for version ${{ env.NEW_VERSION }}
 
           ## Modified Files:
           ${{ env.MODIFIED_FILES }}
@@ -78,16 +77,7 @@ jobs:
     - name: Upload Web.zip as asset
       if: success()
       run: |
-        gh release upload "v${{ env.VERSION }}" "Web.zip" --repo ${{ github.repository }}
-        git push origin main --tags
+        gh release upload "${{ env.NEW_VERSION }}" "Web.zip" --repo ${{ github.repository }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPOSITORY: ${{ github.repository }}
-
-    - name: Save version
-      id: save_version
-      run: |
-        chmod +x updateVersion.sh
-        ./updateVersion.sh
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

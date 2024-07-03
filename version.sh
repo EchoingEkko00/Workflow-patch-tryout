@@ -17,3 +17,9 @@ NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
 
 # Write the new version number to the file
 echo $NEW_VERSION > $VERSION_FILE
+
+# Commit the change and tag the new version
+git tag "v$NEW_VERSION"
+
+# Push the changes and the new tag
+git push origin main --tags

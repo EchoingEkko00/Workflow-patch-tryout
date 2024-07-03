@@ -11,6 +11,7 @@ IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
 
 # Increment the patch number
 PATCH=${VERSION_PARTS[2]}
+PATCH=$((PATCH + 1))
 
 # Form the new version number
 NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"

@@ -16,6 +16,8 @@ PATCH=$((PATCH + 1))
 # Form the new version number
 NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
 
+echo $NEW_VERSION > $VERSION_FILE
+
 git add $VERSION_FILE
 git commit -m "Bump version to $NEW_VERSION"
 

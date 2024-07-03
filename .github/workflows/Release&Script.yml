@@ -13,18 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: "Release for tag ${{ github.ref }}"
-          draft: false
-          prerelease: false
-
       - name: Add script to tag
         run: |
           TAG_NAME="${GITHUB_REF/refs\/tags\//}"

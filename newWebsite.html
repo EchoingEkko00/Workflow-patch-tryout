@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enhanced JavaScript Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #colorButton, #resetButton {
+            margin-top: 10px;
+        }
+        #dateTime {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to My Enhanced Web Page</h1>
+    
+    <label for="inputText">Enter some text: </label>
+    <input type="text" id="inputText">
+    <button id="myButton">Display Text</button>
+    <p id="displayText"></p>
+    
+    <label for="fontSize">Select font size: </label>
+    <select id="fontSize">
+        <option value="16px">16px</option>
+        <option value="18px">18px</option>
+        <option value="20px">20px</option>
+        <option value="22px">22px</option>
+        <option value="24px">24px</option>
+    </select>
+    
+    <button id="colorButton">Change Background Color</button>
+    <button id="resetButton">Reset Page</button>
+    
+    <div id="dateTime"></div>
+    
+    <script>
+        // Get elements
+        const button = document.getElementById('myButton');
+        const colorButton = document.getElementById('colorButton');
+        const resetButton = document.getElementById('resetButton');
+        const inputText = document.getElementById('inputText');
+        const displayText = document.getElementById('displayText');
+        const fontSize = document.getElementById('fontSize');
+        const dateTime = document.getElementById('dateTime');
+        
+        // Add event listener to display input text
+        button.addEventListener('click', function() {
+            const text = inputText.value;
+            displayText.textContent = text ? `You entered: ${text}` : 'Please enter some text!';
+            displayText.style.fontSize = fontSize.value;
+        });
+        
+        // Add event listener to change background color
+        colorButton.addEventListener('click', function() {
+            const colors = ['#FF5733', '#33FF57', '#3357FF', '#F0E68C', '#8A2BE2'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.body.style.backgroundColor = randomColor;
+        });
+        
+        // Add event listener to reset the page
+        resetButton.addEventListener('click', function() {
+            document.body.style.backgroundColor = '';
+            displayText.textContent = '';
+            inputText.value = '';
+            fontSize.value = '16px';
+        });
+        
+        // Function to update date and time
+        function updateDateTime() {
+            const now = new Date();
+            dateTime.textContent = now.toLocaleString();
+        }
+        
+        // Update date and time every second
+        setInterval(updateDateTime, 1000);
+        
+        // Initialize date and time
+        updateDateTime();
+    </script>
+</body>
+</html>

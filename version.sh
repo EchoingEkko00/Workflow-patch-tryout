@@ -22,4 +22,3 @@ echo $NEW_VERSION > $VERSION_FILE
 git tag "v$NEW_VERSION"
 
 # Push the changes and the new tag
-git push origin main --tags

@@ -21,6 +21,7 @@ jobs:
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
+        git pull origin main
 
     - name: Bump version
       id: bump_version
@@ -78,6 +79,7 @@ jobs:
       if: success()
       run: |
         gh release upload "v${{ env.VERSION }}" "Web.zip" --repo ${{ github.repository }}
+        git push origin main --tags
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPOSITORY: ${{ github.repository }}

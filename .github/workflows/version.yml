@@ -49,6 +49,12 @@ jobs:
         MODIFIED_FILES=$(git diff --name-only HEAD~1 | tr '\n' ' ')
         echo "MODIFIED_FILES=$MODIFIED_FILES" >> $GITHUB_ENV
 
+    - name: Get deleted files
+      id: get_deleted_files
+      run: |
+        DELETED_FILES=$(git diff --name-only --diff-filter=D HEAD~1 | tr '\n' ' ')
+        echo "DELETED_FILES=$DELETED_FILES" >> $GITHUB_ENV
+
     - name: Copy modified files to Web folder
       run: |
         mkdir -p Web
@@ -74,6 +80,9 @@ jobs:
 
           ## Modified Files:
           ${{ env.MODIFIED_FILES }}
+
+          ## Deleted Files:
+          ${{ env.DELETED_FILES }}
         draft: false
         prerelease: false
 

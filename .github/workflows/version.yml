@@ -45,7 +45,13 @@ jobs:
         mkdir -p Web
         IFS=' ' read -r -a FILES <<< "${{ env.MODIFIED_FILES }}"
         for FILE in "${FILES[@]}"; do
-          cp --parents "$FILE" Web
+          if [ -e "$FILE" ]; then
+            if [ -d "$FILE" ]; then
+              cp -r --parents "$FILE" Web
+            else
+              cp --parents "$FILE" Web
+            fi
+          fi
         done
 
     - name: Compress Web folder

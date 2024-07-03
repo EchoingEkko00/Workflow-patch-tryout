@@ -2,18 +2,44 @@
 <html>
 <head>
     <title>Simple JavaScript Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #colorButton {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome to My Web Page</h1>
+    
+    <label for="inputText">Enter some text: </label>
+    <input type="text" id="inputText">
     <button id="myButton">Click Me!</button>
-
+    <p id="displayText"></p>
+    
+    <button id="colorButton">Change Background Color</button>
+    
     <script>
-        // Get the button element
+        // Get elements
         const button = document.getElementById('myButton');
-
-        // Add an event listener to the button
+        const colorButton = document.getElementById('colorButton');
+        const inputText = document.getElementById('inputText');
+        const displayText = document.getElementById('displayText');
+        
+        // Add event listener to display input text
         button.addEventListener('click', function() {
-            alert('Button was clicked!');
+            const text = inputText.value;
+            displayText.textContent = text ? `You entered: ${text}` : 'Please enter some text!';
+        });
+        
+        // Add event listener to change background color
+        colorButton.addEventListener('click', function() {
+            const colors = ['#FF5733', '#33FF57', '#3357FF', '#F0E68C', '#8A2BE2'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.body.style.backgroundColor = randomColor;
         });
     </script>
 </body>
